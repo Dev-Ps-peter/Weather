@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e0f7fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #00796b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 500px;
+            width: 100%;
+        }
+        input[type="text"] {
+            padding: 12px;
+            border: 1px solid #b2dfdb;
+            border-radius: 6px;
+            flex: 1;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #004d40;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #00251a;
+        }
+        .weather-info, .forecast-info {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+        .weather-info h2, .forecast-info h2 {
+            color: #00796b;
+            margin-top: 0;
+            font-size: 1.5em;
+            border-bottom: 2px solid #00796b;
+            padding-bottom: 10px;
+        }
+        .forecast-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .forecast-item {
+            background: #f1f8f4;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .forecast-item p {
+            margin: 8px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .forecast-item p:first-of-type {
+            font-weight: bold;
+        }
+        .error {
+            color: #d32f2f;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            form {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Condition</h1>
+    <form action="/" method="post">
+        <input type="text" name="city" placeholder="Enter city name" required>
+        <button type="submit">Fetch Weather</button>
+    </form>
+    
+    <% if (weatherData) { %>
+        <div class="weather-info">
+            <h2>Current Weather in <%= weatherData.name %></h2>
+            <p>Temperature: <%= weatherData.main.temp %> °C</p>
+            <p>Feels Like: <%= weatherData.main.feels_like %> °C</p>
+            <p>Condition: <%= weatherData.weather[0].description %></p>
+            <p>Humidity: <%= weatherData.main.humidity %> %</p>
+            <p>Wind Speed: <%= weatherData.wind.speed %> m/s</p>
+            <p>Wind Gusts: <%= weatherData.wind.gust || 'N/A' %> m/s</p>
+            <p>Pressure: <%= weatherData.main.pressure %> hPa</p>
+            <p>Visibility: <%= weatherData.visibility / 1000 %> km</p>
+            <p>Cloud Cover: <%= weatherData.clouds.all %> %</p>
+            <p>Sunrise: <%= new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString() %></p>
+            <p>Sunset: <%= new Date(weatherData.sys.sunset * 1000).toLocaleTimeString() %></p>
+        </div>
+    <% } %>
+    <% if (forecastData) { %>
+        <h2>5-Day Weather Forecast</h2>
+        <div class="forecast-info">
+            <% forecastData.list.forEach((forecast, index) => { %>
+                <% if (index % 8 === 0) { %>
+                    <div class="forecast-item">
+                        <% 
+                            const date = new Date(forecast.dt * 1000); 
+                            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                            const dateString = date.toLocaleDateString('en-US', options);
+                        %>
+                        <p><%= dateString %></p>
+                        <p>Temperature: <%= forecast.main.temp %> °C</p>
+                        <p>Condition: <%= forecast.weather[0].description %></p>
+                        <p>Humidity: <%= forecast.main.humidity %> %</p>
+                        <p>Wind Speed: <%= forecast.wind.speed %> m/s</p>
+                        <p>Pressure: <%= forecast.main.pressure %> hPa</p>
+                        <p>Cloud Cover: <%= forecast.clouds.all %> %</p>
+                    </div>
+                <% } %>
+            <% }) %>
+        </div>
+    <% } %>
+
+    <% if (error) { %>
+        <p class="error"><%= error %></p>
+    <% } %>
+</body>
+</html>
